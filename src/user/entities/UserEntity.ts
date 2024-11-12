@@ -1,5 +1,5 @@
-import { IsBoolean, IsNumber, IsString } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { IsDate, IsString } from "class-validator";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class UserEntity {
@@ -8,13 +8,15 @@ export class UserEntity {
 
     @Column()
     @IsString()
-    firstName: string;
+    name: string;
 
     @Column()
     @IsString()
-    lastName: string;
+    password: string;
 
-    @Column({ default: true })
-    @IsBoolean()
-    isActive: boolean;
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

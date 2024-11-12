@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "./entities/UserEntity";
 import { DataSource, Repository } from "typeorm";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -39,7 +39,8 @@ export class UsersService {
         await queryRunner.connect();
         await queryRunner.startTransaction();
         const userRepository = queryRunner.manager.getRepository(UserEntity);   
-
+        
+        user.password = await bcrypt.hash(user.password, 10);
         try {
             const savedUser = await userRepository.save(user);
             await queryRunner.commitTransaction();
