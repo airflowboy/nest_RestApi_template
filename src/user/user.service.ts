@@ -5,32 +5,31 @@ import { DataSource, Repository } from "typeorm";
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
-                private dataSource: DataSource) {}
+    constructor(private dataSource: DataSource) {}
 
     findAll(): Promise<UserEntity[]> {
+        const userRepository = this.dataSource.getRepository(UserEntity);
         try {
-            return this.usersRepository.find();
+            return userRepository.find();
         }catch(e) {
-            console.error(e);
             throw e;
         }
     }
     
     findOne(id: number): Promise<UserEntity | null> {
+        const userRepository = this.dataSource.getRepository(UserEntity);
         try {
-            return this.usersRepository.findOneBy({ id });
+            return userRepository.findOneBy({ id });
         }catch(e) {
-            console.error(e);
             throw e;
         }
     }
 
     async remove(id: number): Promise<void> {
+        const userRepository = this.dataSource.getRepository(UserEntity);
         try {
-            await this.usersRepository.delete(id);
+            await userRepository.delete(id);
         }catch(e) {
-            console.error(e);
             throw e;
         }
     }
@@ -47,7 +46,6 @@ export class UsersService {
             return savedUser;
         }catch(e) {
             await queryRunner.rollbackTransaction();
-            console.error(e);
             throw e;
         }finally {
             await queryRunner.release();
@@ -55,14 +53,13 @@ export class UsersService {
     }
 
     async update(id: number, user: UserEntity): Promise<boolean>{
+        const userRepository = this.dataSource.getRepository(UserEntity);
         try {
-            await this.usersRepository.update(id, user);
+            await userRepository.update(id, user);
             return true;
         }catch(e) {
-            console.error(e);
-            return false;
+            throw e;
         }
-    
     }
 }
 
