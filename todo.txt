@@ -1,2 +1,2 @@
-1. 이름, 비밀번호로 유저 조회
-2. 이름 중복 체크;
+1. Authentication 구현
+2. Authorization 구현
