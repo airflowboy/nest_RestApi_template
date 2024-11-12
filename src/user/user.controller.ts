@@ -23,7 +23,6 @@ export class UsersController {
 
     @Post("/create")
     create(@Body() user: UserEntity): Promise<UserEntity> {
-        console.log(user);
         return this.usersService.create(user);
     }
 

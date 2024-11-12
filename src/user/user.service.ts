@@ -1,26 +1,57 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "./entities/UserEntity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>) {}
+    constructor(@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
+                private dataSource: DataSource) {}
 
     findAll(): Promise<UserEntity[]> {
-        return this.usersRepository.find();
-      }
+        try {
+            return this.usersRepository.find();
+        }catch(e) {
+            console.error(e);
+            throw e;
+        }
+    }
     
     findOne(id: number): Promise<UserEntity | null> {
-    return this.usersRepository.findOneBy({ id });
+        try {
+            return this.usersRepository.findOneBy({ id });
+        }catch(e) {
+            console.error(e);
+            throw e;
+        }
     }
 
     async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+        try {
+            await this.usersRepository.delete(id);
+        }catch(e) {
+            console.error(e);
+            throw e;
+        }
     }
 
     async create(user: UserEntity): Promise<UserEntity> {
-        return this.usersRepository.save(user);
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        const userRepository = queryRunner.manager.getRepository(UserEntity);   
+
+        try {
+            const savedUser = await userRepository.save(user);
+            await queryRunner.commitTransaction();
+            return savedUser;
+        }catch(e) {
+            await queryRunner.rollbackTransaction();
+            console.error(e);
+            throw e;
+        }finally {
+            await queryRunner.release();
+        }
     }
 
     async update(id: number, user: UserEntity): Promise<boolean>{
